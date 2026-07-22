@@ -12,6 +12,8 @@ _MODULE_NAMES = [
     "p04_data_archivist",
     "p05_code_nexus",
     "p06_the_codex",
+    "p07_datadeck",
+    "p08_the_matrix"
 ]
 
 
