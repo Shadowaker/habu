@@ -26,7 +26,7 @@ def _check_ex0(got: dict):
     if got.get("text_output") != "a":
         return fail(f"TextProcessor.output() should return 'a' first (FIFO), got {got.get('text_output')!r}")
 
-    if got.get("validate_log_ok") is not True:
+    if not got.get("validate_log_ok"):
         return fail("LogProcessor.validate() should accept a well-formed log dict")
 
     if got.get("log_output") != "INFO: hi":
@@ -48,7 +48,7 @@ def _check_ex1(stdout: str):
 
 def _check_ex2(got: dict):
 
-    received = got.get("received")
+    received = got.get("received", "")
     if not received or len(received) != 1:
         return fail(f"expected exactly one process_output() call, got {received}")
 
