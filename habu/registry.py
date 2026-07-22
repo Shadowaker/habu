@@ -11,6 +11,7 @@ _MODULE_NAMES = [
     "p03_data_quest",
     "p04_data_archivist",
     "p05_code_nexus",
+    "p06_the_codex",
 ]
 
 

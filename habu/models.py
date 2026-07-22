@@ -78,6 +78,10 @@ class Exercise:
     checks: list[Check] = field(default_factory=list)
     directory: str = ""
 
+    # Each entry is a tuple of substrings
+    # A mypy error line is allowlisted when every substring in on of these tuples appears in it
+    allowed_mypy_errors: list[tuple[str, ...]] = field(default_factory=list) #
+
     def dir_path(self, root: Path) -> Path:
         return root.joinpath(self.directory) if self.directory else root
 

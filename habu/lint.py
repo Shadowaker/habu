@@ -17,6 +17,7 @@ class LintResult:
     issue_count: int
     issues: list[str] = field(default_factory=list)
     error: str | None = None
+    allowed_count: int = 0
 
 
 def _run(module: str, args: list[str], files: list[Path], cwd: Path) -> tuple[str, int] | LintResult:
@@ -49,15 +50,30 @@ def run_flake8(files: list[Path], cwd: Path) -> LintResult:
     return LintResult(tool="flake8", ok=(returncode == 0 and not lines), issue_count=len(lines), issues=lines)
 
 
-def run_mypy(files: list[Path], cwd: Path) -> LintResult:
+def run_mypy(files: list[Path], cwd: Path, allowed_errors: list[tuple[str, ...]] | None = None) -> LintResult:
 
     result = _run("mypy", ["--ignore-missing-imports", "--no-error-summary"], files, cwd)
     if isinstance(result, LintResult):
         return result
 
     output, _returncode = result
-    issue_lines = [ln for ln in output.splitlines() if ": error:" in ln]
-    return LintResult(tool="mypy", ok=(len(issue_lines) == 0), issue_count=len(issue_lines), issues=issue_lines)
+    all_errors = [ln for ln in output.splitlines() if ": error:" in ln]
+    if allowed_errors is None:
+        allowed_errors = []
+
+    def is_allowed(line: str) -> bool:
+        return any(all(substr in line for substr in group) for group in allowed_errors)
+
+    issue_lines = [ln for ln in all_errors if not is_allowed(ln)]
+    allowed_count = len(all_errors) - len(issue_lines)
+
+    return LintResult(
+        tool="mypy",
+        ok=(len(issue_lines) == 0),
+        issue_count=len(issue_lines),
+        issues=issue_lines,
+        allowed_count=allowed_count,
+    )
 
 
 def to_check_result(result: LintResult) -> CheckResult:
@@ -66,6 +82,9 @@ def to_check_result(result: LintResult) -> CheckResult:
         return CheckResult(Verdict.SKIP, result.error)
 
     if result.ok:
+        if result.allowed_count:
+            plural = "s" if result.allowed_count > 1 else ""
+            return CheckResult(Verdict.PASS, f"no issues ({result.allowed_count} expected error{plural} allowlisted)")
         return CheckResult(Verdict.PASS, "no issues")
 
     shown = result.issues[:5]

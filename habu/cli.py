@@ -33,7 +33,7 @@ def run_exercise(project_root: Path, exercise: Exercise) -> tuple[list[tuple[str
 
     if py_files:
         results.append(("flake8", to_check_result(run_flake8(py_files, project_root))))
-        results.append(("mypy", to_check_result(run_mypy(py_files, project_root))))
+        results.append(("mypy", to_check_result(run_mypy(py_files, project_root, exercise.allowed_mypy_errors))))
 
     return results
 
