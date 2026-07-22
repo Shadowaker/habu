@@ -13,7 +13,9 @@ _MODULE_NAMES = [
     "p05_code_nexus",
     "p06_the_codex",
     "p07_datadeck",
-    "p08_the_matrix"
+    "p08_the_matrix",
+    "p09_cosmic_data",
+    "p10_funcmage"
 ]
 
 
