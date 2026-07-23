@@ -1,7 +1,5 @@
-"""Lightweight source-level checks (import style, forbidden constructs, etc).
-
-These never execute the submission — they just read the text, so they're
-safe to run on code that Check functions won't otherwise import.
+"""
+Inspect the files for form and code structure check
 """
 
 from __future__ import annotations
