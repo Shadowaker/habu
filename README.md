@@ -25,6 +25,20 @@ Habu detects the project by matching known exercise filenames (e.g. `ex0/ft_hell
 the target directory, so you can run it straight from a student's repo without telling it which
 subject it is.
 
+### Running without uv
+
+`uv run` just activates the project's venv and runs the command; if you'd rather not use `uv` for
+that, activate the venv yourself and drop the `uv run` prefix:
+
+```bash
+source .venv/bin/activate
+habu [path]              # same flags as above
+# or, without activating:
+.venv/bin/habu [path]
+# or, as a module:
+.venv/bin/python -m habu [path]
+```
+
 ## Known projects
 
 | id  | name             | subject                                    |
@@ -74,3 +88,15 @@ lint failure does keep that exercise — and so the whole submission — from be
 Each subject lives in its own file under `habu/projects/pXX_*.py`, exporting a `PROJECT` object built
 from `habu/models.py`. Check factories live in `habu/checks.py`; the subprocess execution primitives
 (`probe()`, `run_script_file()`) live in `habu/executor.py`.
+
+## Contributing
+
+1. Install [uv](https://docs.astral.sh/uv/) and run `uv sync` to set up the dev environment.
+2. Make your change. If you're adding or editing a project spec, see
+   [Adding/editing project specs](#addingediting-project-specs) above.
+3. Sanity-check your change against a real submission directory, e.g. `uv run habu P06 -p p06`, to make
+   sure checks still detect and grade the project correctly.
+4. Commit with a `TYPE - Description` message (`FEAT`, `FIX`, etc.), matching the existing history.
+
+Pull requests should stay focused on a single subject/exercise or fix — avoid bundling unrelated
+project spec changes together.
