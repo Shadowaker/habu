@@ -141,3 +141,7 @@ Check(name="iterative/recursive parity", fn=_ex6_same_output),
 Return `ok(...)`, `fail(...)`, `skip(...)`, or `error(...)` from `habu.models`. 
 New factories that would be reusable across subjects belong in `habu/checks.py`; one-offs can stay 
 local to the project file.
+
+## Note
+
+This tester won't replace a correction. Always follow the correction sheet.
