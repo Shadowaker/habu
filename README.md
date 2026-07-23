@@ -83,12 +83,6 @@ exercise, against that exercise's own submitted `.py` file(s), and shows the res
 other checks. This doesn't gate or block an exercise's other checks (they all run regardless), but a
 lint failure does keep that exercise — and so the whole submission — from being marked as passing.
 
-## Adding/editing project specs
-
-Each subject lives in its own file under `habu/projects/pXX_*.py`, exporting a `PROJECT` object built
-from `habu/models.py`. Check factories live in `habu/checks.py`; the subprocess execution primitives
-(`probe()`, `run_script_file()`) live in `habu/executor.py`.
-
 ## Contributing
 
 1. Install [uv](https://docs.astral.sh/uv/) and run `uv sync` to set up the dev environment.
@@ -100,3 +94,50 @@ from `habu/models.py`. Check factories live in `habu/checks.py`; the subprocess 
 
 Pull requests should stay focused on a single subject/exercise or fix — avoid bundling unrelated
 project spec changes together.
+
+### Adding a check
+
+Each subject lives in its own file under `habu/projects/pXX_*.py`, exporting a `PROJECT` object built
+from `habu/models.py`. 
+Check factories live in `habu/checks.py`; the subprocess execution primitives
+(`probe()`, `run_script_file()`) live in `habu/executor.py`.
+
+Most checks are just a call to an existing factory from `habu/checks.py` (`function_prints_exact`,
+`script_stdout_contains`, `source_has_import`, ...), added to an `Exercise`'s `checks` list in its
+`habu/projects/pXX_*.py` file:
+
+```python
+Exercise(
+    id="ex1",
+    title="Garden Name",
+    files=["ex1/ft_garden_name.py"],
+    checks=[
+        file_exists("ex1/ft_garden_name.py"),
+        function_prints_contains(
+            "ex1/ft_garden_name.py",
+            "ft_garden_name",
+            stdin="Community Garden\n",
+            expected_substrings=["Garden: Community Garden"],
+        ),
+    ],
+),
+```
+
+If none of the existing factories fit (e.g. comparing two exercises' output against each other, like
+`p00`'s iterative-vs-recursive check), write a plain function `(ctx: ExerciseContext) -> CheckResult`
+and wrap it in a `Check`:
+
+```python
+def _ex6_same_output(ctx: ExerciseContext) -> CheckResult:
+    ...
+    return ok("iterative and recursive outputs match") if match else fail("outputs differ")
+
+# in the exercise's checks list:
+Check(name="iterative/recursive parity", fn=_ex6_same_output),
+```
+
+`ctx` gives you `ctx.path(*parts)` / `ctx.exists(*parts)` to reach files in the submission, and
+`habu.executor.probe()` / `run_script_file()` to run submission code in an isolated subprocess.
+Return `ok(...)`, `fail(...)`, `skip(...)`, or `error(...)` from `habu.models`. 
+New factories that would be reusable across subjects belong in `habu/checks.py`; one-offs can stay 
+local to the project file.
