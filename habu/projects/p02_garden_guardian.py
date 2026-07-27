@@ -26,6 +26,9 @@ PROJECT = Project(
             id="ex0",
             title="Agricultural Data Validation",
             files=["ex0/ft_first_exception.py"],
+            allowed_mypy_errors=[
+                ("ft_different_errors.py", "test_error_types"),
+            ],
             checks=[
                 file_exists("ex0/ft_first_exception.py"),
                 probe_check(
