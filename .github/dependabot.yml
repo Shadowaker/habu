@@ -1,0 +1,34 @@
+version: 2
+updates:
+  # Python dependencies managed by uv (pyproject.toml + uv.lock)
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    commit-message:
+      # Matches the repo's "TYPE - Description" convention, e.g. "CHORE - Bump rich from 14.0.0 to 14.1.0"
+      prefix: "CHORE -"
+    groups:
+      # Bundle minor/patch bumps into a single weekly PR; majors still get their own PR
+      python-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Actions used in .github/workflows/
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    commit-message:
+      prefix: "CHORE -"
+    groups:
+      # One PR for all action bumps (checkout, setup-uv, ...)
+      github-actions:
+        patterns:
+          - "*"

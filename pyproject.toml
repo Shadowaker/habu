@@ -19,3 +19,11 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["habu"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.17.3",
+]
+
+[tool.ruff]
+line-length = 120
