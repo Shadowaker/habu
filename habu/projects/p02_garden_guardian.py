@@ -3,13 +3,12 @@ from __future__ import annotations
 from habu.checks import file_exists, probe_check, script_stdout_contains
 from habu.models import CheckResult, Exercise, Project, fail, ok
 
+
 def _check_error_types(records: list) -> CheckResult:
 
     expected = {0: "ValueError", 1: "ZeroDivisionError", 2: "FileNotFoundError", 3: "TypeError", 4: "no_error"}
     got = dict(records)
-    mismatches = {
-        n: (expected[n], got.get(n)) for n in expected if got.get(n) != expected[n]
-    }
+    mismatches = {n: (expected[n], got.get(n)) for n in expected if got.get(n) != expected[n]}
 
     if not mismatches:
         return ok("each operation number raises the documented exception type")

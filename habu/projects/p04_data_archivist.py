@@ -22,7 +22,6 @@ def _with_temp_source(fn):
     def check_fn(ctx: ExerciseContext):
 
         with tempfile.TemporaryDirectory() as td:
-
             src = Path(td) / "ancient_fragment.txt"
             src.write_text(SOURCE_CONTENT)
             return fn(ctx, src)
@@ -77,9 +76,7 @@ def _ex1_transform_and_save(ctx: ExerciseContext, src: Path):
 
     transformed_present = all(f"{line}#" in r_empty.stdout for line in SOURCE_LINES)
     if not transformed_present:
-        return fail(
-            "transformed content ('#' appended to each line) not found in stdout", detail=r_empty.stdout
-        )
+        return fail("transformed content ('#' appended to each line) not found in stdout", detail=r_empty.stdout)
 
     out_name = "habu_archive_output.txt"
     out_path = script.parent / out_name
@@ -124,7 +121,7 @@ def _ex2_stream_separation(ctx: ExerciseContext, src: Path):
 
     return fail(
         "the error message appears on stdout — it must go to stderr instead",
-        detail=f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+        detail=f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}",
     )
 
 
@@ -149,7 +146,7 @@ def _ex2_reads_without_input(ctx: ExerciseContext, src: Path):
 
 
 def _ex3_probe_assertion(records: list):
-    got = dict((r[0], r[1:]) for r in records)
+    got = {r[0]: r[1:] for r in records}
     if "missing" not in got or "read" not in got:
         return fail(f"expected both a 'missing' and a 'read' result, got: {records}")
 

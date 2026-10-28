@@ -7,24 +7,23 @@ from pathlib import Path
 from habu import ui
 from habu.discovery import detect_project, get_project
 from habu.lint import run_flake8, run_mypy, to_check_result
-from habu.models import Exercise, ExerciseContext, Project, Verdict, error
+from habu.models import CheckResult, Exercise, ExerciseContext, Project, Verdict, error
 from habu.registry import load_projects
 
 
-def run_exercise(project_root: Path, exercise: Exercise) -> tuple[list[tuple[str, "object"]], bool]:
+def run_exercise(project_root: Path, exercise: Exercise) -> list[tuple[str, CheckResult]]:
     missing = [f for f in exercise.files if not project_root.joinpath(f).exists()]
 
     if missing:
-        return [], False
+        return []
 
     ctx = ExerciseContext(root=project_root, exercise_dir=exercise.dir_path(project_root))
-    results = []
+    results: list[tuple[str, CheckResult]] = []
 
     for check in exercise.checks:
-
         try:
             result = check.fn(ctx)
-        except Exception as e:  # a bug in the check itself, not the submission
+        except Exception as e:  # noqa: BLE001 — a bug in the check itself, not the submission
             result = error(f"check crashed: {type(e).__name__}: {e}")
 
         results.append((check.name, result))

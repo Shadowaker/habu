@@ -24,9 +24,7 @@ def _ex0_runs_and_reports_status(ctx: ExerciseContext):
     if "MATRIX STATUS" not in r.stdout:
         return fail("expected a 'MATRIX STATUS' line reporting venv detection", detail=r.stdout)
 
-    return ok(
-        "runs cleanly and reports a MATRIX STATUS line (structural check only)"
-    )
+    return ok("runs cleanly and reports a MATRIX STATUS line (structural check only)")
 
 
 def _ex1_reports_dependencies(ctx: ExerciseContext):
@@ -48,8 +46,7 @@ def _ex1_reports_dependencies(ctx: ExerciseContext):
     mentioned = [pkg for pkg in ("pandas", "numpy", "matplotlib") if pkg in r.stdout]
     if len(mentioned) < 3:
         return fail(
-            f"expected the dependency report to mention pandas/numpy/matplotlib, "
-            f"only saw: {mentioned}", detail=r.stdout
+            f"expected the dependency report to mention pandas/numpy/matplotlib, only saw: {mentioned}", detail=r.stdout
         )
 
     return ok("runs without crashing and reports status for pandas/numpy/matplotlib")
@@ -78,11 +75,7 @@ def _ex1_dependency_files(ctx: ExerciseContext):
     reqs_src = reqs.read_text(errors="replace").lower()
     pyproject_src = pyproject.read_text(errors="replace").lower()
 
-    missing = [
-        pkg
-        for pkg in ("pandas", "numpy", "matplotlib")
-        if pkg not in reqs_src or pkg not in pyproject_src
-    ]
+    missing = [pkg for pkg in ("pandas", "numpy", "matplotlib") if pkg not in reqs_src or pkg not in pyproject_src]
 
     if missing:
         return fail(f"requirements.txt/pyproject.toml should both reference: {missing}")
@@ -135,9 +128,7 @@ def _ex2_env_override_changes_output(ctx: ExerciseContext):
         return fail("timed out")
 
     if r_dev.returncode != 0 or r_prod.returncode != 0:
-        return fail(
-            "crashed while testing MATRIX_MODE=development vs production", detail=r_dev.stderr + r_prod.stderr
-        )
+        return fail("crashed while testing MATRIX_MODE=development vs production", detail=r_dev.stderr + r_prod.stderr)
 
     if r_dev.stdout == r_prod.stdout:
         return fail(
@@ -198,7 +189,9 @@ PROJECT = Project(
                 Check(".env.example and .gitignore are present and correct", _ex2_files_and_gitignore),
                 Check("reads all 5 required configuration variables", _ex2_reads_env_vars),
                 Check("runs without crashing when configuration is missing", _ex2_runs_without_config),
-                Check("visibly differs between development and production MATRIX_MODE", _ex2_env_override_changes_output),
+                Check(
+                    "visibly differs between development and production MATRIX_MODE", _ex2_env_override_changes_output
+                ),
             ],
         ),
     ],

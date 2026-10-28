@@ -15,7 +15,7 @@ _MODULE_NAMES = [
     "p07_datadeck",
     "p08_the_matrix",
     "p09_cosmic_data",
-    "p10_funcmage"
+    "p10_funcmage",
 ]
 
 
@@ -24,7 +24,6 @@ def load_projects() -> list[Project]:
     projects: list[Project] = []
 
     for name in _MODULE_NAMES:
-
         try:
             mod = __import__(f"habu.projects.{name}", fromlist=["PROJECT"])
         except ModuleNotFoundError:

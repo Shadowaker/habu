@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-from habu.checks import file_exists, probe_check, script_stdout_contains
+from habu.checks import probe_check, script_stdout_contains
 from habu.executor import run_script_file
 from habu.models import Check, CheckResult, Exercise, ExerciseContext, Project, fail, ok
 
-ALEMBIC_FILES = ["elements.py", "alchemy/__init__.py", "alchemy/elements.py"] + [
-    f"ft_alembic_{i}.py" for i in range(6)
-]
+ALEMBIC_FILES = ["elements.py", "alchemy/__init__.py", "alchemy/elements.py"] + [f"ft_alembic_{i}.py" for i in range(6)]
 DISTILLATION_FILES = ["alchemy/potions.py", "ft_distillation_0.py", "ft_distillation_1.py"]
 TRANSMUTATION_FILES = ["alchemy/transmutation/recipes.py"] + [f"ft_transmutation_{i}.py" for i in range(3)]
 GRIMOIRE_FILES = [
@@ -36,8 +34,7 @@ def _transmutation_agree(ctx: ExerciseContext) -> CheckResult:
         outputs.append(r.stdout)
 
     if not all(
-            "Air element created" in o and "Fire element created" in o and "Water element created"
-            in o for o in outputs
+        "Air element created" in o and "Fire element created" in o and "Water element created" in o for o in outputs
     ):
         return fail("all three scripts should print the same lead_to_gold() result, built from the four elements")
 
@@ -66,6 +63,7 @@ def _kaboom_1_raises_circular_import(ctx: ExerciseContext) -> CheckResult:
 
     return fail("couldn't confirm a circular-import failure", detail=combined)
 
+
 def _alembic_4_hides_create_earth(ctx: ExerciseContext):
 
     script = ctx.path("ft_alembic_4.py")
@@ -85,9 +83,8 @@ def _alembic_4_hides_create_earth(ctx: ExerciseContext):
 
     return fail(
         "expected an AttributeError when accessing alchemy.create_earth (it must not be package-exposed)",
-        detail=combined
+        detail=combined,
     )
-
 
 
 PROJECT = Project(
@@ -170,7 +167,7 @@ record(mod.create_water())
                 ),
                 Check(
                     "ft_kaboom_1.py: dark_spellbook/dark_validator raise a genuine circular import",
-                    _kaboom_1_raises_circular_import
+                    _kaboom_1_raises_circular_import,
                 ),
             ],
         ),

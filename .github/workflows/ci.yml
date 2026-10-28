@@ -32,10 +32,8 @@ jobs:
       - name: Ruff format check
         run: uv run ruff format --check .
 
-      # Options passed here rather than in a .flake8 file: Habu runs flake8 on submissions,
-      # and a config file in this repo would be picked up when grading submissions inside it
       - name: flake8
-        run: uv run flake8 --max-line-length 120 habu
+        run: uv run flake8 --max-line-length 120 --extend-ignore E203 habu
 
       - name: mypy
         run: uv run mypy habu

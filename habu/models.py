@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Callable
 
 
 class Verdict(Enum):
@@ -80,7 +80,7 @@ class Exercise:
 
     # Each entry is a tuple of substrings
     # A mypy error line is allowlisted when every substring in on of these tuples appears in it
-    allowed_mypy_errors: list[tuple[str, ...]] = field(default_factory=list) #
+    allowed_mypy_errors: list[tuple[str, ...]] = field(default_factory=list)
 
     def dir_path(self, root: Path) -> Path:
         return root.joinpath(self.directory) if self.directory else root

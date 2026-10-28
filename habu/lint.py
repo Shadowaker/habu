@@ -29,7 +29,7 @@ def _run(module: str, args: list[str], files: list[Path], cwd: Path) -> tuple[st
     cmd = [sys.executable, "-m", module, *args, *rel_files]
 
     try:
-        proc = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=TIMEOUT)
+        proc = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=TIMEOUT, check=False)
     except FileNotFoundError:
         return LintResult(tool=module, ok=True, issue_count=0, error=f"{module} is not installed — skipped")
     except subprocess.TimeoutExpired:

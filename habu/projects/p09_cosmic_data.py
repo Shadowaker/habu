@@ -27,7 +27,6 @@ def _check_ex1(got: dict):
     if not got.get("unverified_physical_rejected"):
         return fail("unverified physical contact should be rejected")
 
-
     return ok(
         "the three mandatory validation rules (id prefix, physical+verified, telepathic witnesses) "
         "correctly reject the corresponding bad data"

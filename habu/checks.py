@@ -8,10 +8,10 @@ projects do, via `probe_check`).
 
 from __future__ import annotations
 
-import re
-from pathlib import Path
-from typing import Callable
 import inspect
+import re
+from collections.abc import Callable
+from pathlib import Path
 
 from habu.executor import ExecResult, ProbeResult, missing_dependency, probe, run_script_file
 from habu.inspect_utils import contains as source_contains
@@ -55,12 +55,7 @@ def source_has_import(rel_path: str, module: str, style: str, *, name: str | Non
 
 
 def source_contains_check(
-        rel_path: str,
-        pattern: str,
-        *,
-        regex: bool = False,
-        message: str,
-        name: str | None = None
+    rel_path: str, pattern: str, *, regex: bool = False, message: str, name: str | None = None
 ) -> Check:
 
     def fn(ctx: ExerciseContext) -> CheckResult:
@@ -77,14 +72,7 @@ def source_contains_check(
     return Check(name or f"{rel_path}: {message}", fn)
 
 
-def source_forbids(
-        rel_path: str,
-        pattern: str,
-        *,
-        regex: bool = False,
-        message: str,
-        name: str | None = None
-) -> Check:
+def source_forbids(rel_path: str, pattern: str, *, regex: bool = False, message: str, name: str | None = None) -> Check:
 
     def fn(ctx: ExerciseContext) -> CheckResult:
 
@@ -100,13 +88,13 @@ def source_forbids(
     return Check(name or f"{rel_path}: not {message}", fn)
 
 
-def _probe_or_signal(module_path: Path, body: str, stdin: str) -> tuple[ProbeResult | None, CheckResult | None]:
+def _probe_or_signal(module_path: Path, body: str, stdin: str) -> ProbeResult | CheckResult:
 
     result = probe(module_path, body, stdin=stdin)
     dep = missing_dependency(result)
     if dep:
-        return None, skip(f"requires {dep}, which isn't installed — run `uv sync`")
-    return result, None
+        return skip(f"requires {dep}, which isn't installed — run `uv sync`")
+    return result
 
 
 def function_prints_exact(
@@ -127,14 +115,12 @@ def function_prints_exact(
             return fail(f"{rel_path} not found")
 
         body = call or f"mod.{func_name}()"
-        result, signal = _probe_or_signal(module_path, body, stdin)
-        if signal:
-            return signal
+        result = _probe_or_signal(module_path, body, stdin)
+        if isinstance(result, CheckResult):
+            return result
 
         if not result.ok:
-            return fail(
-                f"raised {result.error}: {result.message}", detail=result.raw.stderr if result.raw else None
-            )
+            return fail(f"raised {result.error}: {result.message}", detail=result.raw.stderr if result.raw else None)
 
         actual, expected_n = _norm(result.stdout), _norm(expected)
         if actual == expected_n:
@@ -163,14 +149,12 @@ def function_prints_contains(
             return fail(f"{rel_path} not found")
 
         body = call or f"mod.{func_name}()"
-        result, signal = _probe_or_signal(module_path, body, stdin)
-        if signal:
-            return signal
+        result = _probe_or_signal(module_path, body, stdin)
+        if isinstance(result, CheckResult):
+            return result
 
         if not result.ok:
-            return fail(
-                f"raised {result.error}: {result.message}", detail=result.raw.stderr if result.raw else None
-            )
+            return fail(f"raised {result.error}: {result.message}", detail=result.raw.stderr if result.raw else None)
 
         missing = [s for s in expected_substrings if s not in result.stdout]
         if not missing:
@@ -187,7 +171,8 @@ def function_prints_contains(
 def probe_check(
     rel_path: str,
     body: str,
-    assertion: Callable[[list], CheckResult] | Callable[[list, str], CheckResult],
+    # (records) -> CheckResult or (records, stdout) -> CheckResult, dispatched on arity below
+    assertion: Callable[..., CheckResult],
     *,
     stdin: str = "",
     name: str,
@@ -205,21 +190,19 @@ def probe_check(
         if not module_path.exists():
             return fail(f"{rel_path} not found")
 
-        result, signal = _probe_or_signal(module_path, body, stdin)
-        if signal:
-            return signal
+        result = _probe_or_signal(module_path, body, stdin)
+        if isinstance(result, CheckResult):
+            return result
 
         if not result.ok:
-            return fail(
-                f"raised {result.error}: {result.message}", detail=result.raw.stderr if result.raw else None
-            )
+            return fail(f"raised {result.error}: {result.message}", detail=result.raw.stderr if result.raw else None)
 
         try:
             if len(inspect.signature(assertion).parameters) >= 2:
                 return assertion(result.records, result.stdout)
 
             return assertion(result.records)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 — a bug in the assertion, not the submission
             return error(f"assertion crashed: {type(e).__name__}: {e}")
 
     return Check(name, fn)
@@ -285,10 +268,7 @@ def script_stdout_contains(
 
 
 def script_runs_without_crash(
-        rel_path: str,
-        *, argv: list[str] | None = None,
-        stdin: str = "",
-        name: str | None = None
+    rel_path: str, *, argv: list[str] | None = None, stdin: str = "", name: str | None = None
 ) -> Check:
 
     def fn(ctx: ExerciseContext) -> CheckResult:
@@ -344,10 +324,7 @@ def script_stdout_regex(
 
 
 def script_result(
-        rel_path: str,
-        *, argv: list[str] | None = None,
-        stdin: str = "",
-        timeout: float = 10.0
+    rel_path: str, *, argv: list[str] | None = None, stdin: str = "", timeout: float = 10.0
 ) -> Callable[[ExerciseContext], ExecResult | None]:
     """Low-level accessor for custom Check functions that need the raw ExecResult (e.g. to count regex matches)
     rather than a canned assertion."""

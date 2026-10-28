@@ -37,6 +37,13 @@ class ProbeResult:
     raw: ExecResult | None = None
 
 
+def _timeout_text(out: bytes | str | None) -> str:
+    """TimeoutExpired's captured output is always bytes, even with text=True."""
+    if isinstance(out, bytes):
+        return out.decode(errors="replace")
+    return out or ""
+
+
 def run_python(
     code: str,
     cwd: Path,
@@ -54,10 +61,11 @@ def run_python(
             capture_output=True,
             text=True,
             timeout=timeout,
+            check=False,
         )
         return ExecResult(proc.stdout, proc.stderr, proc.returncode)
     except subprocess.TimeoutExpired as e:
-        return ExecResult(e.stdout or "", e.stderr or "", -1, timed_out=True)
+        return ExecResult(_timeout_text(e.stdout), _timeout_text(e.stderr), -1, timed_out=True)
 
 
 def run_script_file(
@@ -89,13 +97,14 @@ def run_script_file(
             text=True,
             timeout=timeout,
             env=full_env,
+            check=False,
         )
         return ExecResult(proc.stdout, proc.stderr, proc.returncode)
     except subprocess.TimeoutExpired as e:
-        return ExecResult(e.stdout or "", e.stderr or "", -1, timed_out=True)
+        return ExecResult(_timeout_text(e.stdout), _timeout_text(e.stderr), -1, timed_out=True)
 
 
-_PROBE_TEMPLATE = '''
+_PROBE_TEMPLATE = """
 import sys, json, io, contextlib, importlib.util
 
 def _record(_records):
@@ -121,7 +130,7 @@ except Exception as e:
 _result["records"] = _records
 _result["stdout"] = _buf.getvalue()
 print({marker!r} + json.dumps(_result, default=lambda o: sorted(o) if isinstance(o, (set, frozenset)) else repr(o)))
-'''
+"""
 
 
 def probe(
@@ -139,9 +148,7 @@ def probe(
     inspects afterwards.
     """
 
-    indented_body = "\n".join(
-        ("        " + line if line.strip() else "") for line in body.strip("\n").splitlines()
-    )
+    indented_body = "\n".join(("        " + line if line.strip() else "") for line in body.strip("\n").splitlines())
     code = _PROBE_TEMPLATE.format(module_path=str(module_path), body=indented_body, marker=_MARKER)
     raw = run_python(code, cwd=cwd or module_path.parent, stdin=stdin, timeout=timeout)
     return _parse_probe(raw)
@@ -155,7 +162,7 @@ def _parse_probe(raw: ExecResult) -> ProbeResult:
     line = None
     for candidate in raw.stdout.splitlines()[::-1]:
         if candidate.startswith(_MARKER):
-            line = candidate[len(_MARKER):]
+            line = candidate[len(_MARKER) :]
             break
 
     if line is None:

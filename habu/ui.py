@@ -11,10 +11,7 @@ try:
     from rich.console import Console
 
 except ImportError as exc:
-    raise SystemExit(
-        "Habu needs the 'rich' package for its terminal UI.\n"
-        "Install it with: pip install rich"
-    ) from exc
+    raise SystemExit("Habu needs the 'rich' package for its terminal UI.\nInstall it with: pip install rich") from exc
 
 console = Console(highlight=False)
 

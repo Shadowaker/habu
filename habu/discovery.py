@@ -22,7 +22,6 @@ def detect_project(root: Path, projects: list[Project]) -> DetectionResult:
     second: tuple[Project, float] | None = None
 
     for project in projects:
-
         fingerprint = project.fingerprint_files()
         if not fingerprint:
             continue

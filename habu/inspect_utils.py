@@ -42,4 +42,3 @@ def uses_import_style(path: Path, module: str, style: str) -> bool:
         return re.search(rf"^\s*from\s+{mod}\s+import\s", src, re.MULTILINE) is not None
 
     raise ValueError(f"unknown style {style!r}")
-

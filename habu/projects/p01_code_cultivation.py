@@ -55,7 +55,9 @@ PROJECT = Project(
             files=["ex1/ft_garden_data.py"],
             checks=[
                 file_exists("ex1/ft_garden_data.py"),
-                _at_least("ex1/ft_garden_data.py", SHOW_LINE, 3, name="show()s at least 3 plants in the expected format"),
+                _at_least(
+                    "ex1/ft_garden_data.py", SHOW_LINE, 3, name="show()s at least 3 plants in the expected format"
+                ),
             ],
         ),
         Exercise(
@@ -66,7 +68,7 @@ PROJECT = Project(
                 file_exists("ex2/ft_plant_growth.py"),
                 script_stdout_regex(
                     "ex2/ft_plant_growth.py",
-                    patterns=[rf"Day 1\b", rf"Day 7\b", SHOW_LINE, r"Growth this week:\s*\d+(?:\.\d+)?\s*cm"],
+                    patterns=[r"Day 1\b", r"Day 7\b", SHOW_LINE, r"Growth this week:\s*\d+(?:\.\d+)?\s*cm"],
                 ),
             ],
         ),

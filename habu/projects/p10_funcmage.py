@@ -33,9 +33,7 @@ def _check_ex1(got: dict):
         )
 
     if "Dragon" not in str(got.get("cond_true")):
-        return fail(
-            f"conditional_caster with a True condition should cast normally, got {got.get('cond_true')}"
-        )
+        return fail(f"conditional_caster with a True condition should cast normally, got {got.get('cond_true')}")
 
     if got.get("cond_false") != "Spell fizzled":
         return fail(

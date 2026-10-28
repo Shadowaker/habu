@@ -34,7 +34,7 @@ def _custom(rel_path: str, name: str, *, argv=None, stdin="", timeout=10.0):
 
             try:
                 return fn(r.stdout)
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001 — unexpected output shape is a failed check, not a crash
                 return fail(f"couldn't verify output ({type(e).__name__}: {e})", detail=r.stdout)
 
         from habu.models import Check
@@ -44,10 +44,7 @@ def _custom(rel_path: str, name: str, *, argv=None, stdin="", timeout=10.0):
     return decorate
 
 
-@_custom(
-    "ex3/ft_achievement_tracker.py",
-    "achievement sets are internally consistent (union/intersection/difference)"
-)
+@_custom("ex3/ft_achievement_tracker.py", "achievement sets are internally consistent (union/intersection/difference)")
 def _ex3_check(stdout: str) -> CheckResult:
 
     players = dict(re.findall(r"^Player (\w+): (\{.*\}|set\(\))$", stdout, re.MULTILINE))
@@ -99,10 +96,7 @@ def _ex3_check(stdout: str) -> CheckResult:
     return ok("union/intersection/difference all check out against the printed sets")
 
 
-@_custom(
-    "ex5/ft_data_stream.py",
-    "gen_event/consume_event produce the required counts and draining behavior"
-)
+@_custom("ex5/ft_data_stream.py", "gen_event/consume_event produce the required counts and draining behavior")
 def _ex5_check(stdout: str) -> CheckResult:
 
     events = re.findall(r"^Event (\d+): Player \w+ did action \w+$", stdout, re.MULTILINE)
@@ -132,10 +126,7 @@ def _ex5_check(stdout: str) -> CheckResult:
     return ok("1000 events, a 10-event list, and a full drain down to []")
 
 
-@_custom(
-    "ex6/ft_data_alchemist.py",
-    "comprehension outputs are consistent (capitalization, average, filter)"
-)
+@_custom("ex6/ft_data_alchemist.py", "comprehension outputs are consistent (capitalization, average, filter)")
 def _ex6_check(stdout: str) -> CheckResult:
 
     def grab(label: str, pattern: str = r"\[.*\]"):
@@ -238,7 +229,11 @@ PROJECT = Project(
                 script_stdout_contains(
                     "ex1/ft_score_analytics.py",
                     argv=["ab", "ac"],
-                    expected_substrings=["Invalid parameter: 'ab'", "Invalid parameter: 'ac'", "No scores provided. Usage:"],
+                    expected_substrings=[
+                        "Invalid parameter: 'ab'",
+                        "Invalid parameter: 'ac'",
+                        "No scores provided. Usage:",
+                    ],
                     name="only invalid scores",
                 ),
             ],
