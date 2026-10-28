@@ -171,7 +171,6 @@ def function_prints_contains(
 def probe_check(
     rel_path: str,
     body: str,
-    # (records) -> CheckResult or (records, stdout) -> CheckResult, dispatched on arity below
     assertion: Callable[..., CheckResult],
     *,
     stdin: str = "",
