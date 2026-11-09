@@ -5,9 +5,9 @@ description = "Modular tester for the 42 Python Piscine subjects"
 requires-python = ">=3.10"
 dependencies = [
     "rich>=13",
-    "pydantic>=2.14.1",
+    "pydantic>=2.14.3",
     "flake8>=7.4.1",
-    "mypy>=2.4.0",
+    "mypy>=2.4.1",
 ]
 
 [project.scripts]
@@ -22,7 +22,7 @@ packages = ["habu"]
 
 [dependency-groups]
 dev = [
-    "ruff>=0.17.3",
+    "ruff>=0.17.4",
 ]
 
 [tool.ruff]
